@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     if (world_rank == 0) {
         std::ifstream in("D:\\Projects_OOP\\generate_array\\array_1B.bin", std::ios::binary);
         if (!in) {
-            std::cerr << "Не вдалося вiдкрити файл!" << std::endl;
+            std::cerr << "ГЌГҐ ГўГ¤Г Г«Г®Г±Гї ГўiГ¤ГЄГ°ГЁГІГЁ ГґГ Г©Г«!" << std::endl;
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
 
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
         in.read(reinterpret_cast<char*>(full_data.data()), total_elements * sizeof(int));
         in.close();
 
-        // Підготовка sendcounts і displs
+        // РџС–РґРіРѕС‚РѕРІРєР° sendcounts С– displs
         sendcounts.resize(world_size);
         displs.resize(world_size);
         long long base = total_elements / world_size;
@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Надсилаємо розмір масиву
+   // РќР°РґСЃРёР»Р°С”РјРѕ СЂРѕР·РјС–СЂ РјР°СЃРёРІСѓ
     MPI_Bcast(&total_elements, 1, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
 
-    // Розсилка sendcounts і displs
+    // Р РѕР·СЃРёР»РєР° sendcounts С– displs
     if (world_rank != 0) {
         sendcounts.resize(world_size);
         displs.resize(world_size);
@@ -57,20 +57,20 @@ int main(int argc, char* argv[]) {
 
     local_data.resize(sendcounts[world_rank]);
 
-    // Розподілення частин
+   // Р РѕР·РїРѕРґС–Р»РµРЅРЅСЏ С‡Р°СЃС‚РёРЅ
     MPI_Scatterv(full_data.data(), sendcounts.data(), displs.data(), MPI_INT,
         local_data.data(), sendcounts[world_rank], MPI_INT,
         0, MPI_COMM_WORLD);
 
     double start = MPI_Wtime();
 
-    // Локальна сума
+    // Р›РѕРєР°Р»СЊРЅР° СЃСѓРјР°
     long long local_sum = 0;
     for (int val : local_data) {
         local_sum += val;
     }
 
-    // Збір глобальної суми
+    // Р—Р±С–СЂ РіР»РѕР±Р°Р»СЊРЅРѕС— СЃСѓРјРё
     long long global_sum = 0;
     MPI_Reduce(&local_sum, &global_sum, 1, MPI_LONG_LONG_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
